@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Handwriting Converter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Indie+Flower&family=Kalam:wght@300;400;700&family=Satisfy&family=Shadows+Into+Light&family=Permanent+Marker&family=Homemade+Apple&family=Nothing+You+Could+Do&family=Rock+Salt&family=Bad+Script&family=Marck+Script&family=Over+the+Rainbow&family=Reenie+Beanie&display=swap');
+        
+        /* Handwriting font classes */
+        .handwriting-font-1 { font-family: 'Caveat', cursive; }
+        .handwriting-font-2 { font-family: 'Dancing Script', cursive; }
+        .handwriting-font-3 { font-family: 'Indie Flower', cursive; }
+        .handwriting-font-4 { font-family: 'Kalam', cursive; }
+        .handwriting-font-5 { font-family: 'Satisfy', cursive; }
+        .handwriting-font-6 { font-family: 'Shadows Into Light', cursive; }
+        .handwriting-font-7 { font-family: 'Permanent Marker', cursive; }
+        .handwriting-font-8 { font-family: 'Homemade Apple', cursive; }
+        .handwriting-font-9 { font-family: 'Nothing You Could Do', cursive; }
+        .handwriting-font-10 { font-family: 'Rock Salt', cursive; }
+        .handwriting-font-11 { font-family: 'Bad Script', cursive; }
+        .handwriting-font-12 { font-family: 'Marck Script', cursive; }
+        .handwriting-font-13 { font-family: 'Over the Rainbow', cursive; }
+        .handwriting-font-14 { font-family: 'Reenie Beanie', cursive; }
+        
+        /* Dark mode styles */
+        .dark-mode {
+            background-color: #1f2937;
+            color: #f3f4f6;
+        }
+        .dark-mode .dark-bg {
+            background-color: #374151;
+        }
+        .dark-mode .dark-border {
+            border-color: #4b5563;
+        }
+        .dark-mode .dark-text {
+            color: #f3f4f6;
+        }
+        .dark-mode .dark-text-secondary {
+            color: #d1d5db;
+        }
+        .dark-mode .dark-input {
+            background-color: #4b5563;
+            color: #f3f4f6;
+            border-color: #6b7280;
+        }
+        .dark-mode .dark-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        /* Paper texture */
+        .paper-texture {
+            background-color: #f5f5f5;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-6 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm29 22c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM32 63c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-13c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        .dark-paper-texture {
+            background-color: #374151;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-6 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm29 22c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM32 63c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-13c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%236b7280' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        
+        /* Interactive elements */
+        .download-btn {
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .font-option {
+            transition: all 0.2s ease;
+        }
+        .font-option:hover {
+            transform: scale(1.05);
+        }
+        .font-option.active {
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.3);
+        }
+        
+        .ink-color-option {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ink-color-option:hover {
+            transform: scale(1.1);
+        }
+        .ink-color-option.active {
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #4f46e5;
+        }
+        
+        /* Canvas styling */
+        #outputCanvas {
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark-mode #outputCanvas {
+            border-color: #4b5563;
+        }
+        
+        /* Preview modal */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .preview-content {
+            background-color: white;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: auto;
+            position: relative;
+        }
+        
+        .dark-mode .preview-content {
+            background-color: #374151;
+        }
+        
+        .close-preview {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        /* Slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #e5e7eb;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #4f46e5;
+            cursor: pointer;
+        }
+        
+        .dark-mode input[type="range"] {
+            background: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header with dark mode toggle -->
+        <header class="text-center mb-10 relative">
+            <div class="absolute top-0 right-0">
+                <button id="darkModeToggle" class="p-2 rounded-full bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+            <h1 class="text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">Advanced Handwriting Converter</h1>
+            <p class="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Transform your digital text into realistic handwritten notes with multiple customization options</p>
+        </header>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Input Section -->
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-md p-6 dark-bg">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Input Text</h2>
+                    <button id="clearBtn" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center">
+                        <i class="fas fa-trash-alt mr-1"></i> Clear
+                    </button>
+                </div>
+                
+                <textarea id="inputText" class="w-full h-64 p-4 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark-input dark-text" placeholder="Type or paste your text here..."></textarea>
+                
+                <!-- Text formatting options -->
+                <div class="mt-4 flex space-x-2">
+                    <button id="boldBtn" class="format-btn px-3 py-1 bg-gray-100 dark:bg-gray-600 rounded hover:bg-gray-200 dark:hover:bg-gray-500" data-format="bold">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button id="italicBtn" class="format-btn px-3 py-1 bg-gray-100 dark:bg-gray-600 rounded hover:bg-gray-200 dark:hover:bg-gray-500" data-format="italic">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button id="underlineBtn" class="format-btn px-3 py-1 bg-gray-100 dark:bg-gray-600 rounded hover:bg-gray-200 dark:hover:bg-gray-500" data-format="underline">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                </div>
+                
+                <!-- Handwriting styles -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">Handwriting Style</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer active" data-font="1">
+                            <div class="handwriting-font-1 text-lg dark:text-gray-200">Caveat</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="2">
+                            <div class="handwriting-font-2 text-lg dark:text-gray-200">Dancing Script</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="3">
+                            <div class="handwriting-font-3 text-lg dark:text-gray-200">Indie Flower</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="4">
+                            <div class="handwriting-font-4 text-lg dark:text-gray-200">Kalam</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="5">
+                            <div class="handwriting-font-5 text-lg dark:text-gray-200">Satisfy</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="6">
+                            <div class="handwriting-font-6 text-lg dark:text-gray-200">Shadows Into Light</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="7">
+                            <div class="handwriting-font-7 text-lg dark:text-gray-200">Permanent Marker</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="8">
+                            <div class="handwriting-font-8 text-lg dark:text-gray-200">Homemade Apple</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="9">
+                            <div class="handwriting-font-9 text-lg dark:text-gray-200">Nothing You Could Do</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="10">
+                            <div class="handwriting-font-10 text-lg dark:text-gray-200">Rock Salt</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="11">
+                            <div class="handwriting-font-11 text-lg dark:text-gray-200">Bad Script</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="12">
+                            <div class="handwriting-font-12 text-lg dark:text-gray-200">Marck Script</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="13">
+                            <div class="handwriting-font-13 text-lg dark:text-gray-200">Over the Rainbow</div>
+                        </div>
+                        <div class="font-option p-3 border dark:border-gray-600 rounded-lg cursor-pointer" data-font="14">
+                            <div class="handwriting-font-14 text-lg dark:text-gray-200">Reenie Beanie</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customization options -->
+                <div class="mt-6">
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">Customization</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ink Color</label>
+                            <div class="flex space-x-2">
+                                <div class="ink-color-option active bg-black" data-color="black"></div>
+                                <div class="ink-color-option bg-blue-600" data-color="#2563eb"></div>
+                                <div class="ink-color-option bg-red-600" data-color="#dc2626"></div>
+                                <div class="ink-color-option bg-green-600" data-color="#16a34a"></div>
+                                <div class="ink-color-option bg-purple-600" data-color="#9333ea"></div>
+                                <div class="ink-color-option bg-gray-600" data-color="#4b5563"></div>
+                                <div class="ink-color-option bg-amber-600" data-color="#d97706"></div>
+                                <div class="ink-color-option bg-pink-600" data-color="#db2777"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="fontSize" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Font Size (px)</label>
+                            <input type="range" id="fontSize" min="12" max="36" value="24" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <span>12px</span>
+                                <span id="fontSizeValue">24px</span>
+                                <span>36px</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="lineHeight" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Line Spacing</label>
+                            <input type="range" id="lineHeight" min="1" max="3" step="0.1" value="1.5" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <span>Tight</span>
+                                <span id="lineHeightValue">1.5</span>
+                                <span>Wide</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="letterSpacing" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Letter Spacing</label>
+                            <input type="range" id="letterSpacing" min="-2" max="5" step="0.5" value="0" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <span>Tight</span>
+                                <span id="letterSpacingValue">Normal</span>
+                                <span>Wide</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="inkOpacity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ink Opacity</label>
+                            <input type="range" id="inkOpacity" min="50" max="100" value="100" class="w-full">
+                            <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                <span>Light</span>
+                                <span id="inkOpacityValue">100%</span>
+                                <span>Dark</span>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="paperTexture" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-600" checked>
+                                <label for="paperTexture" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Paper Texture</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="randomizeBaseline" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-600" checked>
+                                <label for="randomizeBaseline" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Random Baseline</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="randomizeSize" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-600" checked>
+                                <label for="randomizeSize" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Random Size</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="randomizeRotation" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-600" checked>
+                                <label for="randomizeRotation" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Random Rotation</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex space-x-3">
+                    <button id="convertBtn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-magic mr-2"></i> Convert to Handwriting
+                    </button>
+                    <button id="previewBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-eye mr-2"></i> Preview
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Output Section -->
+            <div class="bg-white dark:bg-gray-700 rounded-xl shadow-md p-6 dark-bg">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">Handwritten Output</h2>
+                    <div class="flex space-x-2">
+                        <button id="downloadPngBtn" class="download-btn bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 py-1 px-3 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-download mr-1"></i> PNG
+                        </button>
+                        <button id="downloadJpgBtn" class="download-btn bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 py-1 px-3 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-download mr-1"></i> JPG
+                        </button>
+                        <button id="downloadPdfBtn" class="download-btn bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 py-1 px-3 rounded-lg text-sm flex items-center">
+                            <i class="fas fa-download mr-1"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="paperContainer" class="paper-texture dark-paper-texture rounded-lg overflow-hidden">
+                    <canvas id="outputCanvas" class="w-full h-auto max-h-[500px] mx-auto bg-white dark:bg-gray-600"></canvas>
+                </div>
+                
+                <div id="emptyState" class="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                    <p>Your converted handwriting will appear here</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preview Modal -->
+        <div id="previewModal" class="preview-modal">
+            <div class="preview-content">
+                <button id="closePreview" class="close-preview">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div id="previewPaper" class="paper-texture dark-paper-texture p-8">
+                    <canvas id="previewCanvas" class="w-full h-auto mx-auto bg-white dark:bg-gray-600"></canvas>
+                </div>
+                <div class="p-4 flex justify-center space-x-4">
+                    <button id="downloadPreviewPng" class="download-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+                        <i class="fas fa-download mr-2"></i> Download PNG
+                    </button>
+                    <button id="downloadPreviewJpg" class="download-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+                        <i class="fas fa-download mr-2"></i> Download JPG
+                    </button>
+                    <button id="downloadPreviewPdf" class="download-btn bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg">
+                        <i class="fas fa-download mr-2"></i> Download PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-16 text-center text-gray-500 dark:text-gray-400 text-sm">
+            <p>Advanced Handwriting Converter &copy; 2023 | Created with <i class="fas fa-heart text-red-500"></i></p>
+        </footer>
+    </div>
+
+    <script>
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const inputText = document.getElementById('inputText');
+            const outputCanvas = document.getElementById('outputCanvas');
+            const previewCanvas = document.getElementById('previewCanvas');
+            const convertBtn = document.getElementById('convertBtn');
+            const previewBtn = document.getElementById('previewBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const downloadPngBtn = document.getElementById('downloadPngBtn');
+            const downloadJpgBtn = document.getElementById('downloadJpgBtn');
+            const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+            const fontSizeSlider = document.getElementById('fontSize');
+            const fontSizeValue = document.getElementById('fontSizeValue');
+            const lineHeightSlider = document.getElementById('lineHeight');
+            const lineHeightValue = document.getElementById('lineHeightValue');
+            const letterSpacingSlider = document.getElementById('letterSpacing');
+            const letterSpacingValue = document.getElementById('letterSpacingValue');
+            const inkOpacitySlider = document.getElementById('inkOpacity');
+            const inkOpacityValue = document.getElementById('inkOpacityValue');
+            const paperTextureCheckbox = document.getElementById('paperTexture');
+            const randomizeBaselineCheckbox = document.getElementById('randomizeBaseline');
+            const randomizeSizeCheckbox = document.getElementById('randomizeSize');
+            const randomizeRotationCheckbox = document.getElementById('randomizeRotation');
+            const fontOptions = document.querySelectorAll('.font-option');
+            const inkColorOptions = document.querySelectorAll('.ink-color-option');
+            const formatBtns = document.querySelectorAll('.format-btn');
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const previewModal = document.getElementById('previewModal');
+            const closePreview = document.getElementById('closePreview');
+            const downloadPreviewPng = document.getElementById('downloadPreviewPng');
+            const downloadPreviewJpg = document.getElementById('downloadPreviewJpg');
+            const downloadPreviewPdf = document.getElementById('downloadPreviewPdf');
+            const paperContainer = document.getElementById('paperContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Default settings
+            let currentFont = '1';
+            let currentColor = 'black';
+            let isBold = false;
+            let isItalic = false;
+            let isUnderline = false;
+            let canvasContext = outputCanvas.getContext('2d');
+            let previewContext = previewCanvas.getContext('2d');
+            let isDarkMode = false;
+            
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                isDarkMode = true;
+            }
+            
+            // Event Listeners
+            convertBtn.addEventListener('click', convertToHandwriting);
+            previewBtn.addEventListener('click', showPreview);
+            clearBtn.addEventListener('click', clearInput);
+            downloadPngBtn.addEventListener('click', () => downloadImage('png'));
+            downloadJpgBtn.addEventListener('click', () => downloadImage('jpeg'));
+            downloadPdfBtn.addEventListener('click', downloadAsPdf);
+            closePreview.addEventListener('click', hidePreview);
+            downloadPreviewPng.addEventListener('click', () => downloadPreviewImage('png'));
+            downloadPreviewJpg.addEventListener('click', () => downloadPreviewImage('jpeg'));
+            downloadPreviewPdf.addEventListener('click', downloadPreviewAsPdf);
+            
+            fontSizeSlider.addEventListener('input', function() {
+                fontSizeValue.textContent = this.value + 'px';
+            });
+            
+            lineHeightSlider.addEventListener('input', function() {
+                lineHeightValue.textContent = this.value;
+            });
+            
+            letterSpacingSlider.addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                if (value === 0) {
+                    letterSpacingValue.textContent = 'Normal';
+                } else if (value < 0) {
+                    letterSpacingValue.textContent = value;
+                } else {
+                    letterSpacingValue.textContent = '+' + value;
+                }
+            });
+            
+            inkOpacitySlider.addEventListener('input', function() {
+                inkOpacityValue.textContent = this.value + '%';
+            });
+            
+            // Font selection
+            fontOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    fontOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFont = this.getAttribute('data-font');
+                });
+            });
+            
+            // Ink color selection
+            inkColorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    inkColorOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    currentColor = this.getAttribute('data-color');
+                });
+            });
+            
+            // Text formatting
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const format = this.getAttribute('data-format');
+                    
+                    switch(format) {
+                        case 'bold':
+                            isBold = !isBold;
+                            this.classList.toggle('bg-gray-300', isBold);
+                            this.classList.toggle('dark:bg-gray-500', isBold);
+                            break;
+                        case 'italic':
+                            isItalic = !isItalic;
+                            this.classList.toggle('bg-gray-300', isItalic);
+                            this.classList.toggle('dark:bg-gray-500', isItalic);
+                            break;
+                        case 'underline':
+                            isUnderline = !isUnderline;
+                            this.classList.toggle('bg-gray-300', isUnderline);
+                            this.classList.toggle('dark:bg-gray-500', isUnderline);
+                            break;
+                    }
+                });
+            });
+            
+            // Dark mode toggle
+            darkModeToggle.addEventListener('click', function() {
+                isDarkMode = !isDarkMode;
+                document.body.classList.toggle('dark-mode');
+                
+                if (isDarkMode) {
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+                
+                // Redraw canvas with new background if it exists
+                if (outputCanvas.width > 0) {
+                    convertToHandwriting();
+                }
+            });
+            
+            // Conversion function
+            function convertToHandwriting() {
+                const text = inputText.value.trim();
+                if (!text) {
+                    alert('Please enter some text to convert');
+                    return;
+                }
+                
+                // Set canvas dimensions (A4 ratio)
+                const canvasWidth = 800;
+                const canvasHeight = 1120;
+                outputCanvas.width = canvasWidth;
+                outputCanvas.height = canvasHeight;
+                
+                // Clear canvas
+                canvasContext.clearRect(0, 0, canvasWidth, canvasHeight);
+                
+                // Apply paper texture if enabled
+                if (paperTextureCheckbox.checked) {
+                    if (isDarkMode) {
+                        canvasContext.fillStyle = '#374151';
+                    } else {
+                        canvasContext.fillStyle = '#f5f5f5';
+                    }
+                    canvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+                } else {
+                    if (isDarkMode) {
+                        canvasContext.fillStyle = '#374151';
+                    } else {
+                        canvasContext.fillStyle = 'white';
+                    }
+                    canvasContext.fillRect(0, 0, canvasWidth, canvasHeight);
+                }
+                
+                // Set text properties
+                const baseFontSize = parseInt(fontSizeSlider.value);
+                const lineHeight = parseFloat(lineHeightSlider.value) * baseFontSize;
+                const letterSpacing = parseFloat(letterSpacingSlider.value);
+                const inkOpacity = parseInt(inkOpacitySlider.value) / 100;
+                const margin = 40;
+                let x = margin;
+                let y = margin + baseFontSize;
+                
+                // Set font based on selection
+                let fontFamily;
+                switch(currentFont) {
+                    case '1': fontFamily = 'Caveat'; break;
+                    case '2': fontFamily = 'Dancing Script'; break;
+                    case '3': fontFamily = 'Indie Flower'; break;
+                    case '4': fontFamily = 'Kalam'; break;
+                    case '5': fontFamily = 'Satisfy'; break;
+                    case '6': fontFamily = 'Shadows Into Light'; break;
+                    case '7': fontFamily = 'Permanent Marker'; break;
+                    case '8': fontFamily = 'Homemade Apple'; break;
+                    case '9': fontFamily = 'Nothing You Could Do'; break;
+                    case '10': fontFamily = 'Rock Salt'; break;
+                    case '11': fontFamily = 'Bad Script'; break;
+                    case '12': fontFamily = 'Marck Script'; break;
+                    case '13': fontFamily = 'Over the Rainbow'; break;
+                    case '14': fontFamily = 'Reenie Beanie'; break;
+                    default: fontFamily = 'Caveat';
+                }
+                
+                // Build font string
+                let fontString = '';
+                if (isBold) fontString += 'bold ';
+                if (isItalic) fontString += 'italic ';
+                fontString += `${baseFontSize}px ${fontFamily}`;
+                
+                canvasContext.font = fontString;
+                
+                // Set ink color with opacity
+                const colorWithOpacity = hexToRgba(currentColor, inkOpacity);
+                canvasContext.fillStyle = colorWithOpacity;
+                
+                // Underline setup
+                if (isUnderline) {
+                    canvasContext.strokeStyle = colorWithOpacity;
+                    canvasContext.lineWidth = baseFontSize * 0.08;
+                }
+                
+                // Split text into lines that fit canvas width
+                const words = text.split(' ');
+                let line = '';
+                
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i] + ' ';
+                    const metrics = canvasContext.measureText(testLine);
+                    const testWidth = metrics.width + (testLine.length * letterSpacing);
+                    
+                    if (testWidth > canvasWidth - 2 * margin && i > 0) {
+                        drawTextLine(line, x, y, baseFontSize, letterSpacing);
+                        line = words[i] + ' ';
+                        y += lineHeight;
+                        
+                        // Check if we've reached the bottom of the canvas
+                        if (y > canvasHeight - margin) {
+                            break;
+                        }
+                    } else {
+                        line = testLine;
+                    }
+                }
+                
+                // Draw the last line
+                if (y <= canvasHeight - margin) {
+                    drawTextLine(line, x, y, baseFontSize, letterSpacing);
+                }
+                
+                // Hide empty state
+                emptyState.style.display = 'none';
+            }
+            
+            // Draw a line of text with imperfections
+            function drawTextLine(text, x, y, baseFontSize, letterSpacing) {
+                const randomBaseline = randomizeBaselineCheckbox.checked;
+                const randomSize = randomizeSizeCheckbox.checked;
+                const randomRotation = randomizeRotationCheckbox.checked;
+                
+                // Split text into characters to add individual imperfections
+                const chars = text.split('');
+                let currentX = x;
+                
+                for (let i = 0; i < chars.length; i++) {
+                    const char = chars[i];
+                    
+                    // Save the current canvas state
+                    canvasContext.save();
+                    
+                    // Randomize baseline (vertical position)
+                    let charY = y;
+                    if (randomBaseline) {
+                        charY += (Math.random() * baseFontSize * 0.3) - (baseFontSize * 0.15);
+                    }
+                    
+                    // Randomize size
+                    let charSize = baseFontSize;
+                    if (randomSize) {
+                        charSize *= 0.9 + Math.random() * 0.2; // 90-110% of original size
+                    }
+                    
+                    // Randomize rotation
+                    if (randomRotation) {
+                        const rotation = (Math.random() * 6) - 3; // -3 to +3 degrees
+                        canvasContext.translate(currentX, charY);
+                        canvasContext.rotate(rotation * Math.PI / 180);
+                        canvasContext.translate(-currentX, -charY);
+                    }
+                    
+                    // Set font with potentially randomized size
+                    canvasContext.font = (isBold ? 'bold ' : '') + 
+                                        (isItalic ? 'italic ' : '') + 
+                                        `${charSize}px ${getCurrentFontFamily()}`;
+                    
+                    // Draw the character
+                    canvasContext.fillText(char, currentX, charY);
+                    
+                    // Draw underline if enabled
+                    if (isUnderline) {
+                        const underlineY = charY + 2;
+                        const underlineLength = canvasContext.measureText(char).width;
+                        canvasContext.beginPath();
+                        canvasContext.moveTo(currentX, underlineY);
+                        canvasContext.lineTo(currentX + underlineLength, underlineY);
+                        canvasContext.stroke();
+                    }
+                    
+                    // Restore canvas state
+                    canvasContext.restore();
+                    
+                    // Move to next character position
+                    const charWidth = canvasContext.measureText(char).width;
+                    currentX += charWidth + letterSpacing;
+                }
+            }
+            
+            // Get current font family
+            function getCurrentFontFamily() {
+                switch(currentFont) {
+                    case '1': return 'Caveat';
+                    case '2': return 'Dancing Script';
+                    case '3': return 'Indie Flower';
+                    case '4': return 'Kalam';
+                    case '5': return 'Satisfy';
+                    case '6': return 'Shadows Into Light';
+                    case '7': return 'Permanent Marker';
+                    case '8': return 'Homemade Apple';
+                    case '9': return 'Nothing You Could Do';
+                    case '10': return 'Rock Salt';
+                    case '11': return 'Bad Script';
+                    case '12': return 'Marck Script';
+                    case '13': return 'Over the Rainbow';
+                    case '14': return 'Reenie Beanie';
+                    default: return 'Caveat';
+                }
+            }
+            
+            // Hex to RGBA conversion
+            function hexToRgba(hex, opacity) {
+                let r, g, b;
+                
+                if (hex.startsWith('#')) {
+                    // Remove # if present
+                    hex = hex.substring(1);
+                    
+                    // Parse r, g, b values
+                    if (hex.length === 3) {
+                        r = parseInt(hex[0] + hex[0], 16);
+                        g = parseInt(hex[1] + hex[1], 16);
+                        b = parseInt(hex[2] + hex[2], 16);
+                    } else if (hex.length === 6) {
+                        r = parseInt(hex.substring(0, 2), 16);
+                        g = parseInt(hex.substring(2, 4), 16);
+                        b = parseInt(hex.substring(4, 6), 16);
+                    }
+                } else if (hex === 'black') {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                }
+                
+                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+            }
+            
+            // Download function
+            function downloadImage(format) {
+                if (outputCanvas.width === 0) {
+                    alert('Please convert text to handwriting first');
+                    return;
+                }
+                
+                const link = document.createElement('a');
+                link.download = `handwriting-${new Date().toISOString().slice(0, 10)}.${format}`;
+                link.href = outputCanvas.toDataURL(`image/${format}`);
+                link.click();
+            }
+            
+            // Download as PDF
+            function downloadAsPdf() {
+                if (outputCanvas.width === 0) {
+                    alert('Please convert text to handwriting first');
+                    return;
+                }
+                
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // Add canvas image to PDF
+                const imgData = outputCanvas.toDataURL('image/jpeg', 1.0);
+                const imgWidth = 210; // A4 width in mm
+                const imgHeight = (outputCanvas.height * imgWidth) / outputCanvas.width;
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`handwriting-${new Date().toISOString().slice(0, 10)}.pdf`);
+            }
+            
+            // Clear input
+            function clearInput() {
+                inputText.value = '';
+                canvasContext.clearRect(0, 0, outputCanvas.width, outputCanvas.height);
+                outputCanvas.width = 0;
+                outputCanvas.height = 0;
+                emptyState.style.display = 'block';
+            }
+            
+            // Show preview
+            function showPreview() {
+                if (outputCanvas.width === 0) {
+                    alert('Please convert text to handwriting first');
+                    return;
+                }
+                
+                // Set preview canvas dimensions
+                previewCanvas.width = outputCanvas.width;
+                previewCanvas.height = outputCanvas.height;
+                
+                // Copy content from output canvas to preview canvas
+                previewContext.drawImage(outputCanvas, 0, 0);
+                
+                // Show modal
+                previewModal.style.display = 'flex';
+            }
+            
+            // Hide preview
+            function hidePreview() {
+                previewModal.style.display = 'none';
+            }
+            
+            // Download preview image
+            function downloadPreviewImage(format) {
+                const link = document.createElement('a');
+                link.download = `handwriting-preview-${new Date().toISOString().slice(0, 10)}.${format}`;
+                link.href = previewCanvas.toDataURL(`image/${format}`);
+                link.click();
+            }
+            
+            // Download preview as PDF
+            function downloadPreviewAsPdf() {
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // Add canvas image to PDF
+                const imgData = previewCanvas.toDataURL('image/jpeg', 1.0);
+                const imgWidth = 210; // A4 width in mm
+                const imgHeight = (previewCanvas.height * imgWidth) / previewCanvas.width;
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+                pdf.save(`handwriting-preview-${new Date().toISOString().slice(0, 10)}.pdf`);
+            }
+            
+            // Initialize with sample text
+            inputText.value = "Dear Diary,\n\nToday I discovered this amazing handwriting converter tool. It can transform my digital text into beautiful handwritten notes with different styles and customizations. I can make it bold, italic, or underlined, change the ink color, adjust the size and spacing, and even add realistic imperfections!\n\nI'm so excited to use it for my personal journal, school notes, and creative projects. The dark mode is perfect for late-night writing sessions.\n\nTry it yourself and see the magic happen!";
+        });
+    </script>
+</body>
+</html>
